@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/manifoldco/promptui"
-	// "golang.org/x/text/search"
 )
 
 type Todo struct {
@@ -19,6 +18,10 @@ type Todo struct {
 	StartDate string `json:"stDate"`
 	EndDate   string `json:"edDate"`
 	IsTodo    bool   `json:"isTodo"`
+}
+
+type Selector struct {
+	Val string
 }
 
 func main() {
@@ -265,20 +268,32 @@ IsTodo: {{.IsTodo}}`,
 		return
 	}
 
+	template = &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "✔️ {{ .Val | green }}",
+		Inactive: "{{ .Val }}",
+		Selected: "✔️ {{ .Val | cyan }}",
+	}
+
+	selector := []Selector{
+		Selector{"Yes"},
+		Selector{"No"},
+	}
+
 	prompt2 := promptui.Select{
 		Label:     "Complete todo?",
 		Templates: template,
-		Items:     []string{"Yes", "No"},
+		Items:     selector,
 	}
 
-	_, res, err1 := prompt2.Run()
+	c, res, err1 := prompt2.Run()
 
 	if err1 != nil {
 		fmt.Printf("Err: ", err1)
 		return
 	}
 
-	if res == "Yes" {
+	if selector[c].Val == "Yes" {
 		todos[i].IsTodo = true
 		writeJson(todos, "todo")
 	} else {

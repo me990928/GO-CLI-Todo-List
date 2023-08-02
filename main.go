@@ -100,7 +100,7 @@ Date: ` + fmt.Sprintf("%d", date),
 		}
 
 		fmt.Println("Writing Start!")
-		writeJson(todo)
+		writeJson(todo, "add")
 		fmt.Println("Write Todo Success!")
 
 	}
@@ -117,9 +117,22 @@ func showTodo() {
 	dispAll(todos)
 }
 
-func writeJson(data []Todo) {
+func writeJson(data []Todo, mode string) {
 
 	beforeData := []Todo{}
+
+	switch mode {
+	// 補助機能
+	case "todo":
+		fmt.Printf("やあ")
+		file, err := os.Create("todo.json")
+		if err != nil {
+			fmt.Println("Err: ", err)
+			return
+		}
+		defer file.Close()
+	default:
+	}
 
 	_, err := os.Stat("todo.json")
 
@@ -153,12 +166,13 @@ func writeJson(data []Todo) {
 		}
 		defer file.Close()
 
-		err = json.NewDecoder(file).Decode(&beforeData)
+		_ = json.NewDecoder(file).Decode(&beforeData)
 
-		if err != nil {
-			fmt.Println("err:", err)
-			return
-		}
+		// if err != nil {
+		// 	fmt.Println(file)
+		// 	fmt.Println("err:", err)
+		// 	return
+		// }
 
 		data = append(data, beforeData...)
 
@@ -266,10 +280,10 @@ IsTodo: {{.IsTodo}}`,
 
 	if res == "Yes" {
 		todos[i].IsTodo = true
-		writeJson(todos)
+		writeJson(todos, "todo")
 	} else {
 		todos[i].IsTodo = false
-		writeJson(todos)
+		writeJson(todos, "todo")
 	}
 
 	fmt.Println(res)
